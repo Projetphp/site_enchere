@@ -133,7 +133,13 @@ function my_product_action_ajout_controller(){
         return my_product_show_controller();
         redirect_to('my_product');
     }
-	
+
+    
+	/*-------------------------------------------------------------------------------------
+    ============= MODIFIE LES CHAMPS DE LA TABLE USER AVEC LES DONNEES RECUEILLIS ===========
+    ________________________________________________________________________________________*/
+
+
 	$sql= 'INSERT INTO produit (genreProduit, nomProduit, descriptionProduit, photoProduit, prixDDProduit, prixDVProduit, dateDMELProduit, dateDVProduit, user_idUser) 
 			VALUES (:genre_produit, :nom_produit,:description_produit, :photo_produit, :prix_de_depart, :prix_de_vente, NOW(), :date_de_vente, :id_user)';
 												
