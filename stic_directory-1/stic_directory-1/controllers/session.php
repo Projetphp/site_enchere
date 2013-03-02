@@ -39,6 +39,10 @@ function signup_action_controller()
         $errors[] = 'Missing lastname';
     }
 
+    if (empty($form['pseudo'])) {
+        $errors[] = 'Missing pseudo';
+    }
+
     if (empty($form['email'])) {
         $errors[] = 'Missing email';
     }
@@ -72,17 +76,17 @@ function signup_action_controller()
     $salt = uniqid();
     $form['password'] = sha1($form['password'] . $salt);
 
-    $sql = 'INSERT INTO user (nomUser, prenomUser, mailUser, mdpUser, password_salt, createdUser, updatedUser)
-            VALUES ( :lastname, :firstname, :email, :password, :password_salt, NOW(), NOW())';
+    $sql = 'INSERT INTO user (nomUser, prenomUser, mailUser, mdpUser, password_salt, createdUser, updatedUser, pseudoUser)
+            VALUES ( :lastname, :firstname, :email, :password, :password_salt, NOW(), NOW(), :pseudo)';
 
     $query = option('db')->prepare($sql);
     
     $query->bindValue(':lastname', $form['lastname']);
     $query->bindValue(':firstname', $form['firstname']);
-    //$query->bindValue(':class_of', $form['class_of']);
     $query->bindValue(':email', $form['email']);
     $query->bindValue(':password', $form['password']);
     $query->bindValue(':password_salt', $salt);
+    $query->bindValue(':pseudo', $form['pseudo']);
     $query->execute();
 
 

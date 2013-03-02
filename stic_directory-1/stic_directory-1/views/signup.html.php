@@ -23,6 +23,12 @@
       </div>
     </div>
     <div class="control-group">
+      <label class="control-label" for="user-pseudo">Pseudo *</label>
+      <div class="controls">
+        <input type="text" id="user-pseudo" name="user[pseudo]" value="<?= isset($form['pseudo']) ? htmlspecialchars($form['pseudo']) : '' ?>" />
+      </div>
+    </div>
+    <div class="control-group">
       <label class="control-label" for="user-email">Email *</label>
       <div class="controls">
         <input type="text" id="user-email" name="user[email]" value="<?= isset($form['email']) ? htmlspecialchars($form['email']) : '' ?>" />
