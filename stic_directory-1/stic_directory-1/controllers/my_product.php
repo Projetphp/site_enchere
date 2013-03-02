@@ -2,26 +2,38 @@
 
 function my_product_show_controller(){
 
-    if (!array_key_exists('form', set())) {
+    if (!array_key_exists('form', set()) || empty($resultatsql)) {
         set('form', params('produit'));
     }
     //my_product_action_filtre_controller();
     return render('my_product.html.php');
 }
 
+
+
 function my_product_action_filtre_controller(){
-
-    $produit = params('produit');
-    $user = params('user');
-    
-
+    $errors = array();
+    $form = array();
     /*-------------------------------------------------------------------------------------
     ================================ RECEPTION DES DONNEES ================================
     ________________________________________________________________________________________*/
     
+    $produit = params('produit');
+    $user = params('user');
+
     $form = $_POST['filtre'];
 
-    var_dump($_POST['filtre']);
+    if($form["choix"]=="coucou" && $form["genre"]=="coucou"){
+        $errors[] = "vous n'avez pas choisit de filtre";
+    }
+    
+    if($errors){
+        set('form', $form);
+        set('errors', $errors);
+        return my_product_show_controller();
+    }
+    //var_dump("form[choix] = ".$form['choix']);
+    //var_dump("form[genre] = ".$form['genre']);
     // Nettoyage des données reçues
     foreach ($form as $key => $value)
     {
@@ -32,34 +44,84 @@ function my_product_action_filtre_controller(){
         $form[$key] = '' != $value ? $value : null;
         //var_dump($form);
     }
-    //filtre prix plus petit au plus grand
-    $sql1 = 'SELECT idProduit, genreProduit, nomProduit, descriptionProduit, photoProduit, prixDDProduit, prixDVProduit, dateDMELProduit, dateDVProduit, user_idUser.produit, idUser.user FROM produit, user WHERE user_idUser.produit = idUser.user AND idUser.user = :id_user ORDER BY prixDVProduit ASC';
+    
 
-    //filtre date de vente la proche à la plus vieille
-    $sql2 = 'SELECT idProduit, genreProduit, nomProduit, descriptionProduit, photoProduit, prixDDProduit, prixDVProduit, dateDMELProduit, dateDVProduit, user_idUser.produit, idUser.user FROM produit, user WHERE user_idUser.produit = idUser.user AND idUser.user = :id_user ORDER BY dateDVProduit ASC';
+    /*-------------------------------------------------------------------------------------
+    ================================ TRAITEMENT DES FILTRES ===============================
+    ________________________________________________________________________________________*/
 
-    //fitre par genre 1
-    $sql3_1 = 'SELECT idProduit, genreProduit, nomProduit, descriptionProduit, photoProduit, prixDDProduit, prixDVProduit, dateDMELProduit, dateDVProduit, user_idUser.produit, idUser.user FROM produit, user WHERE user_idUser.produit = idUser.user AND idUser.user = :id_user AND genreProduit = :genre1 ORDER BY genreProduit ASC';
+    if(!empty($form)){  
+        echo "palier1";
+        if($form["choix"] == "prix" || $form["choix"] == "date"){
+            echo "palier2";
+            if($form["choix"] == "prix" && $form["genre"] == "coucou"){
+                echo "si prix plein et genre vide => filtre prix plus petit au plus grand";
+                $sql = 'SELECT `idProduit`, `genreProduit`, `nomProduit`, `descriptionProduit`, `photoProduit`, `prixDDProduit`, `prixDVProduit`, `dateDMELProduit`, `dateDVProduit`,`user_idUser` FROM produit, user WHERE user_idUser = idUser AND idUser = :id_user ORDER BY `prixDVProduit` ASC';
+                $query = option('db') -> prepare($sql);
+                $query -> bindValue(':id_user', $user['idUser']);
+            }
+            else if($form["choix"] == "date" && $form["genre"] =="coucou"){
+                echo "si date plein et genre vide => filtre date de vente la plus proche";
+                $sql = 'SELECT `idProduit`, `genreProduit`, `nomProduit`, `descriptionProduit`, `photoProduit`, `prixDDProduit`, `prixDVProduit`, `dateDMELProduit`, `dateDVProduit`,`user_idUser` FROM produit, user WHERE user_idUser = idUser AND idUser = :id_user ORDER BY `dateDVProduit` DESC';
+                $query = option('db') -> prepare($sql);
+                $query -> bindValue(':id_user',$_SESSION['user_id']);
+            }
+            else if($form["choix"] == "prix" && isset($form["genre"])){
+                echo"si prix plein et genre plein => filtre le genre choisit par prix";
+                $sql = 'SELECT `idProduit`, `genreProduit`, `nomProduit`, `descriptionProduit`, `photoProduit`, `prixDDProduit`, `prixDVProduit`, `dateDMELProduit`, `dateDVProduit`,`user_idUser` FROM produit, user WHERE user_idUser = idUser AND idUser = :id_user AND genreProduit = :genre ORDER BY prixDVProduit ASC';
 
-    //fitre par genre 2
-    $sql3_2 = 'SELECT idProduit, genreProduit, nomProduit, descriptionProduit, photoProduit, prixDDProduit, prixDVProduit, dateDMELProduit, dateDVProduit, user_idUser.produit, idUser.user FROM produit, user WHERE user_idUser.produit = idUser.user AND idUser.user = :id_user AND genreProduit = :genre2 ORDER BY genreProduit ASC';
+                $query = option('db') -> prepare($sql);
+                $query -> bindValue(':id_user',$_SESSION['user_id']);
+                $query -> bindValue(':genre',(int)$form['genre']);
+            }
+            
+            else if($form["choix"] == "date" && isset($form["genre"])){
+                echo "si date plein et genre plein => filtre le genre choisit par date";
+                $sql ='SELECT `idProduit`, `genreProduit`, `nomProduit`, `descriptionProduit`, `photoProduit`, `prixDDProduit`, `prixDVProduit`, `dateDMELProduit`, `dateDVProduit`,`user_idUser` FROM produit, user WHERE user_idUser = idUser AND idUser = :id_user AND genreProduit = :genre ORDER BY `dateDVProduit` DESC';
 
-    //fitre par genre 3
-    $sql3_3 = 'SELECT idProduit, genreProduit, nomProduit, descriptionProduit, photoProduit, prixDDProduit, prixDVProduit, dateDMELProduit, dateDVProduit, user_idUser.produit, idUser.user FROM produit, user WHERE user_idUser.produit = idUser.user AND idUser.user = :id_user AND genreProduit = :genre2 ORDER BY genreProduit ASC';
+                $query = option('db') -> prepare($sql);
+                $query -> bindValue(':id_user',$_SESSION['user_id']);
+                $query -> bindValue(':genre',(int)$form['genre']);
+            }
+            
+        }
+        else if($form['choix'] == "coucou" && isset($form['genre'])){
+            echo "si date et prix vide et genre plein => filtre le genre choisit par date";
+            $sql ='SELECT `idProduit`, `genreProduit`, `nomProduit`, `descriptionProduit`, `photoProduit`, `prixDDProduit`, `prixDVProduit`, `dateDMELProduit`, `dateDVProduit`,`user_idUser` FROM produit, user WHERE user_idUser = idUser AND idUser = :id_user AND genreProduit = :genre ORDER BY `dateDVProduit` DESC';
 
-    //if(){}
+            $query = option('db') -> prepare($sql);
+            $query -> bindValue(':id_user',$_SESSION['user_id']);
+            $query -> bindValue(':genre',(int)$form['genre']);
+        }       
+    }
+    //var_dump($query);
+    $query -> execute();
+    $row = $query -> rowCount();
+    $form = $query -> fetch();
 
+    
+
+     params('row',$row);
+     set('row',$row);
+    
+    var_dump($row);
+    var_dump($resultatsql);
+    redirect_to('my_product');
 }
+
+
+
+
+
 function my_product_action_ajout_controller(){
     
-    $produit = params('produit');
-    $user = params('user');
-    
-
     /*-------------------------------------------------------------------------------------
     ================================ RECEPTION DES DONNEES ================================
     ________________________________________________________________________________________*/
     
+    $produit = params('produit');
+    $user = params('user');
+
     $form = $_POST['produit'];
     
     // Nettoyage des données reçues
@@ -92,7 +154,7 @@ function my_product_action_ajout_controller(){
     //erreur de genre
     if (empty($form['genre_produit'])) {
         $errors[] = 'genre of product is missing';
-        var_dump($form['genre_produit']);
+        //var_dump($form['genre_produit']);
     }
 
     //erreur de prix

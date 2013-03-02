@@ -22,24 +22,27 @@ if (isset($errors)): ?>
     		<li> 
 	  			<form action="<?= url_for('/my_product_action_filtre') ?>" id="filterform" method="post" enctype="multipart/form-data" class="form-horizontal label">
 			  	 	<span class="label">Filtre :  </span>
+			  	 	<input type="hidden" name="filtre[choix]" value="coucou">
 			  	 	<div class="control-group">
 			  	 		<label id="prix"><input type="radio" name="filtre[choix]" value="prix">prix</label>
 			  	 		<label id="date"><input type="radio" name="filtre[choix]" value="date">date</label>
 			  	 	</div> 
+			  	 	<input type="hidden" name="filtre[genre]" value="coucou">
 			  	 	<div class="control-group">
 						<label class="radio">
-						<input type="radio" name="filtre[genre]" id="optionsRadios1" value="genre1">
-							genre1
+						<input type="radio" name="filtre[genre]" id="optionsRadios1" value="1">
+							genre 1
 						</label>
 						<label class="radio">
-						<input type="radio" name="filtre[genre]" id="optionsRadios2" value="genre2">
-							genre2
+						<input type="radio" name="filtre[genre]" id="optionsRadios2" value="2">
+							genre 2
 						</label>
 						<label class="radio">
-						<input type="radio" name="filtre[genre]" id="optionsRadios3" value="genre3">
-							genre3
+						<input type="radio" name="filtre[genre]" id="optionsRadios3" value="3">
+							genre 3
 						</label>
 					</div>
+					
 				  	<!--<div class="btn-group" data-toggle="buttons-radio">
 						<button type="button" class="btn btn-small btn-primary" name="filtre[prix]" value="prix">prix</button>
 						<button type="button" class="btn btn-small btn-primary" name="filtre[date]" value="date">date</button>
@@ -54,17 +57,22 @@ if (isset($errors)): ?>
 			    	</div>
 				</form>
 			</li>
-		</ul> 
-      	<ul class="thumbnails">
-		  	<li class="span4">
-		    	<div class="thumbnail">
-		      		<img data-src="holder.js/300x200" alt="">
-		      		<h4>Thumbnail label</h4>
-		      		<p>Thumbnail caption...</p>
-		    	</div>
-		  	</li> 
-		</ul>	
-    </div>
+		</ul>
+		<?php 	if(isset($row)){
+					while($row){
+						echo $thumbnail ='<ul class="thumbnails">';
+						$thumbnail .='		<li class="span4">';
+						$thumbnail .='			<div class="thumbnail">';
+						$thumbnail .='	      		<img data-src="<?= \"/public/user/\".$user[\"idUser\"].'/'.$form[\"photoProduit\"] ?>" alt="">';
+						$thumbnail .='	      		<h4>'.$form['nomProduit'].'</h4>';
+						$thumbnail .='	      		<p>'.$form['descriptionProduit'].'</p>';
+						$thumbnail .='			</div>';
+						$thumbnail .='		</li> ';
+						$thumbnail .='</ul>';
+						$row--;
+					}
+				}?>
+    </div>	
     <div class="tab-pane" id="tab2">
       	<h3>Ajouter un produit</h3>
 	    	<form class="form-horizontal" method="post" action="<?= url_for('/my_product_action_ajout') ?>" enctype="multipart/form-data">
